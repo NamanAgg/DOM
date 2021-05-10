@@ -10,6 +10,8 @@ body {
 .container {
     height: 100vh;
     width: 100vw;
+    background-color: #fff;
+    color: #444;
 }
 
 .title-bar {
@@ -211,7 +213,8 @@ body {
     font-size: 14px;
     font-family: Noto Sans;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .input-cell.selected {
@@ -233,4 +236,18 @@ body {
 
 .input-cell.right-selected {
     border-right: 0.5px solid lightgray;
+}
+
+.menu-icon.selected {
+    background-color: lightgray;
+}
+
+#fill-color-icon {
+    border-bottom: 4px solid #fff;
+    padding-bottom: 2px;
+}
+
+#text-color-icon {
+    border-bottom: 4px solid #444;
+    padding-bottom: 2px;
 }

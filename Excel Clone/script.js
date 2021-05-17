@@ -1,35 +1,11 @@
 //this is an external file so as to apply scroll-bar with sync 
 // of rows name and col name.
-
-//returns row id and col id of a cell
-
-//this is for row name and col name
-
-//this is for making cells
-
-
-//this is scrollbar thing as discussed above
-
-
-//this is to make cell editable when double clicked
-
-
-//this is when we move anywhere, we will remove the above functionality 
-//if we dont do it then if we click the same cell that is now editable and 
-//do only one click, it will remain editble but we want to keep it editable
-//only when double clicked.
-
-//this is when we click
-
-
-//to unselect already selected range of cells 
-
-//to select range of cells when click+ctrl or mouse drag
 const PS = new PerfectScrollbar("#cells", {
     wheelSpeed: 12,
     wheelPropagation: true,
 });
 
+//returns row id and col id of a cell
 function findRowCOl(ele) {
     let idArray = $(ele).attr("id").split("-");
     let rowId = parseInt(idArray[1]);
@@ -37,6 +13,7 @@ function findRowCOl(ele) {
     return [rowId, colId];
 }
 
+//this is for row name and col name
 for (let i = 1; i <= 100; i++) {
     let str = "";
     let n = i;
@@ -55,7 +32,7 @@ for (let i = 1; i <= 100; i++) {
     $("#rows").append(`<div class="row-name">${i}</div>`);
 }
 
-
+//for scrolling between cells
 $("#cells").scroll(function () {
     $("#columns").scrollLeft(this.scrollLeft);
     $("#rows").scrollTop(this.scrollTop);
@@ -80,6 +57,8 @@ let defaultProperties = {
     "color": "#444",
     "bgcolor": "#fff"
 };
+
+//this is used whenever new spreadsheet is created 
 function loadNewSheet() {
     $("#cells").text("");
     for (let i = 1; i <= 100; i++) {
@@ -93,6 +72,7 @@ function loadNewSheet() {
     addSheetTabEventListeners();
 }
 
+//for the very first sheet
 loadNewSheet();
 
 // function addNewSheet() {
@@ -113,6 +93,8 @@ loadNewSheet();
 //     addSheetTabEventListeners();
 // }
 
+
+//adding eventListeners in cells
 function addEventsToCells() {
     $(".input-cell").dblclick(function () {
         $(this).attr("contenteditable", "true");
@@ -159,7 +141,7 @@ function addEventsToCells() {
     })
 }
 
-
+//this function is used when we select multiple cells
 function getTopBottomLeftRightCell(rowId, colId) {
     let topCell = $(`#row-${rowId - 1}-col-${colId}`);
     let bottomCell = $(`#row-${rowId + 1}-col-${colId}`);
@@ -168,7 +150,7 @@ function getTopBottomLeftRightCell(rowId, colId) {
     return [topCell, bottomCell, leftCell, rightCell];
 }
 
-
+//to unselect cells
 function unselectCell(ele, e, topCell, bottomCell, leftCell, rightCell) {
     if (e.ctrlKey && $(ele).attr("contenteditable") == "false") {
         if ($(ele).hasClass("top-selected")) {
@@ -187,6 +169,8 @@ function unselectCell(ele, e, topCell, bottomCell, leftCell, rightCell) {
     }
 }
 
+
+//used to select multiple or single cells either using ctrlKey+click or dragging through mouse
 function selectCell(ele, e, topCell, bottomCell, leftCell, rightCell, mouseSelection) {
     if (e.ctrlKey || mouseSelection) {
 
@@ -239,6 +223,8 @@ function selectCell(ele, e, topCell, bottomCell, leftCell, rightCell, mouseSelec
     changeHeader(findRowCOl(ele));
 }
 
+
+//this is used so as when we change property of cell(s) like font, alignment, color, etc, the chnages must be reflected in header
 function changeHeader([rowId, colId]) {
     let data;
     if (cellData[selectedSheet][rowId - 1] && cellData[selectedSheet][rowId - 1][colId - 1]) {
@@ -258,6 +244,8 @@ function changeHeader([rowId, colId]) {
     $("#text-color-icon").css("border-bottom", `4px solid ${data.color}`);
 }
 
+
+//function called when we change the font Style
 function addRemoveSelectFromFontStyle(data, property) {
     if (data[property]) {
         $(`#${property}`).addClass("selected");
@@ -267,6 +255,8 @@ function addRemoveSelectFromFontStyle(data, property) {
 }
 
 
+//again used for selecting multiple cells, but this select the cells between the boundary of cells we selected
+//earlier one was only selecting boundary cells
 function selectAllBetweenTheRange(start, end) {
     for (let i = (start.rowId < end.rowId ? start.rowId : end.rowId); i <= (start.rowId < end.rowId ? end.rowId : start.rowId); i++) {
         for (let j = (start.colId < end.colId ? start.colId : end.colId); j <= (start.colId < end.colId ? end.colId : start.colId); j++) {
@@ -275,6 +265,7 @@ function selectAllBetweenTheRange(start, end) {
         }
     }
 }
+
 
 $(".menu-selector").change(function (e) {
     let value = $(this).val();
@@ -294,6 +285,7 @@ $(".menu-selector").change(function (e) {
     updateCellData(key, value);
 })
 
+//when we change the alignment of cell(s)
 $(".alignment").click(function (e) {
     $(".alignment.selected").removeClass("selected");
     $(this).addClass("selected");
@@ -318,6 +310,8 @@ $("#underlined").click(function (e) {
     setFontStyle(this, "underlined", "text-decoration", "underline");
 });
 
+
+//when we change the fontStyle of cell(s)
 function setFontStyle(ele, property, key, value) {
     if ($(ele).hasClass("selected")) {
         $(ele).removeClass("selected");
@@ -338,6 +332,7 @@ function setFontStyle(ele, property, key, value) {
     }
 }
 
+//to update cell data if changes are performed like edit text, alignment, fontStyle,etc in cell of a sheet
 function updateCellData(property, value) {
     if (value != defaultProperties[property]) {
         $(".input-cell.selected").each(function (index, data) {
@@ -371,6 +366,7 @@ function updateCellData(property, value) {
     }
 }
 
+//color picker
 $(".color-pick").colorPick({
     'initialColor': '#TYPECOLOR',
     'allowRecent': true,
@@ -400,17 +396,20 @@ $(".color-pick").colorPick({
     }
 });
 
+//for color picker
 $("#fill-color-icon,#text-color-icon").click(function (e) {
     setTimeout(() => {
         $(this).parent().click();
     }, 10);
 });
 
+//again for color picker 
 $(".container").click(function (e) {
     $(".sheet-options-modal").remove();
 });
 
 
+//used for selecting a spreadhsheet(if multiple spreadsheet are present)
 function selectSheet(ele) {
     $(".sheet-tab.selected").removeClass("selected");
     $(ele).addClass("selected");
@@ -418,6 +417,8 @@ function selectSheet(ele) {
     selectedSheet = $(ele).text();
     loadSheet();
 }
+
+//called whenever new sheet is created,this is default
 function emptySheet() {
     let data = cellData[selectedSheet];
     let rowKeys = Object.keys(data);
@@ -442,6 +443,8 @@ function emptySheet() {
     }
 }
 
+
+//to load already created spreadsheet
 function loadSheet() {
     let data = cellData[selectedSheet];
     let rowKeys = Object.keys(data);
@@ -483,6 +486,8 @@ $(".add-sheet").click(function (e) {
     $("#row-1-col-1").click();
 });
 
+
+//spreadsheet even listener
 function addSheetTabEventListeners() {
     $(".sheet-tab.selected").bind("contextmenu", function (e) {
         e.preventDefault();
@@ -578,6 +583,8 @@ function addSheetTabEventListeners() {
     });
 }
 
+
+//for renaming spreadsheet
 function renameSheet() {
     let newSheetName = $(".sheet-modal-input").val();
     if (newSheetName && !Object.keys(cellData).includes(newSheetName)) {

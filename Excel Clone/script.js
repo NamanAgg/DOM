@@ -39,6 +39,7 @@ $("#cells").scroll(function () {
 });
 
 let cellData = { "Sheet1": {} };
+let saved = true;
 let totalSheets = 1;
 let lastlyAddedSheetNumber = 1;
 let selectedSheet = "Sheet1";
@@ -334,6 +335,7 @@ function setFontStyle(ele, property, key, value) {
 
 //to update cell data if changes are performed like edit text, alignment, fontStyle,etc in cell of a sheet
 function updateCellData(property, value) {
+    let prevCellData = JSON.stringify(cellData);
     if (value != defaultProperties[property]) {
         $(".input-cell.selected").each(function (index, data) {
             let [rowId, colId] = findRowCOl(data);
@@ -363,6 +365,9 @@ function updateCellData(property, value) {
                 }
             }
         });
+    }
+    if (saved && JSON.stringify(cellData) != prevCellData) {
+        saved = false;
     }
 }
 
@@ -484,6 +489,7 @@ $(".add-sheet").click(function (e) {
     $(".sheet-tab.selected")[0].scrollIntoView();
     addSheetTabEventListeners();
     $("#row-1-col-1").click();
+    saved = false;
 });
 
 
@@ -565,6 +571,7 @@ function addSheetTabEventListeners() {
                     currentSelectedSheet.remove();
                     // selectSheet($(".sheet-tab.selected")[0]);
                     totalSheets--;
+                    saved = false;
                 } else {
 
                 }
@@ -601,6 +608,7 @@ function renameSheet() {
         selectedSheet = newSheetName;
         $(".sheet-tab.selected").text(newSheetName);
         $(".sheet-modal-parent").remove();
+        saved = false;
     } else {
         $(".error").remove();
         $(".sheet-modal-input-container").append(`
@@ -626,4 +634,61 @@ $(".right-scroller").click(function (e) {
         selectSheet($(".sheet-tab.selected").next()[0]);
     }
     $(".sheet-tab.selected")[0].scrollIntoView();
-})
+});
+
+$("#menu-file").click(function (e) {
+    let fileModal = $(`<div class="file-modal">
+                            <div class="file-options-modal">
+                                <div class="close">
+                                    <div class="material-icons close-icon">arrow_circle_down</div>
+                                    <div>Close</div>
+                                </div>
+                                <div class="new">
+                                    <div class="material-icons new-icon">insert_drive_file</div>
+                                    <div>New</div>
+                                </div>
+                                <div class="open">
+                                    <div class="material-icons open-icon">folder_open</div>
+                                    <div>Open</div>
+                                </div>
+                                <div class="save">
+                                    <div class="material-icons save-icon">save</div>
+                                    <div>Save</div>
+                                </div>
+                            </div>
+                            <div class="file-recent-modal">
+                            </div>
+                            <div class="file-transparent-modal"></div>
+                        </div>`);
+    $(".container").append(fileModal);
+    fileModal.animate({
+        "width": "100vw"
+    }, 300);
+    $(".close,.file-transparent-modal,.new").click(function (e) {
+        fileModal.animate({
+            "width": "0vw"
+        }, 300);
+        setTimeout(() => {
+            fileModal.remove();
+        }, 299);
+    });
+    $(".new").click(function (e) {
+        if (saved) {
+            newFile();
+        } else {
+
+        }
+    })
+});
+
+function newFile() {
+    emptySheet();
+    $(".sheet-tab").remove();
+    $(".sheet-tab-container").append(`<div class="sheet-tab selected">Sheet1</div>`);
+    cellData = { "Sheet1": {} };
+    selectedSheet = "Sheet1";
+    totalSheets = 1;
+    lastlyAddedSheetNumber = 1;
+    addSheetTabEventListeners();
+    $("#row-1-col-1").click();
+}

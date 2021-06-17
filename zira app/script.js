@@ -1,170 +1,254 @@
-let TC = document.querySelector(".ticket-container");
-let allFilters = document.querySelectorAll(".filter");
-let modalVisible = false;
+let modalExists = false;
+let modal;
+let transModal;
+let selectedPriority;
+let allFilters = $(".filter");
+let info;
 
-function loadTTickets(color) {
-    let allTasks = localStorage.getItem("allTasks");
-    if (allTasks != null) {
-        allTasks = JSON.parse(allTasks);
+$(".help").mouseover(function () {
+    info = $(`<div class="info">
+    <h2><u>Features:</u></h2>
+	<ul>
+		<li><b>Add Tasks:</b> Click '+' Icon.</li>
+		<br />
+		<li><b>Delete Tasks:</b> Click '-' Icon.</li>
+		<br />
+		<li>
+			<b>Delete All Tasks:</b> Click Button present in the top
+			right corner.
+		</li>
+		<br />
+		<li><b>View All Tasks:</b> Double click any color in the Toolbar.</li>
+		<br />
+		<li>
+			<b>View Color specific Tasks:</b> Click that specific
+			color in the Toolbar.
+		</li>
+		<br />		
+		<li>
+			<b>Setting Color of a Task:</b>
+			After pressing '+' Icon, Enter your task description, then select the color for your task from the color palette.
+		</li>
+		<br />	
+        <li><b>Each task has its unique id</b></li>
+        <br />
+		<p>
+			<b><i>*Don't worry! Your data will be stored for the next time you visit us.</b>
+		<i></i></p>
+	</ul>
+    </div>`)
+    $(".ticket-container").append(info);
+
+});
+
+$(".help").mouseout(function () {
+    info.remove();
+});
+
+
+function loadTickets(color) {
+    let allTask = localStorage.getItem("allTask");
+    if (allTask != null) {
+        allTask = JSON.parse(allTask);
         if (color) {
-            allTasks = allTasks.filter(function (data) {
+            allTask = allTask.filter(function (data) {
                 return data.priority == color;
-            })
+            });
         }
-        for (let i = 0; i < allTasks.length; i++) {
-            let ticket = document.createElement("div");
-            ticket.classList.add("ticket");
-            ticket.innerHTML = `<div class="ticket-color ticket-color-${allTasks[i].priority}"></div>
-                            <div class="ticket-id">#${allTasks[i].ticketId}</div>
-                            <div class="task">${allTasks[i].task}</div>`;
-            TC.appendChild(ticket);
-            ticket.addEventListener("click", function (e) {
-                if (e.currentTarget.classList.contains("active")) {
-                    e.currentTarget.classList.remove("active");
+        for (let i = 0; i < allTask.length; i++) {
+            let ticket = $(`<div class="ticket">
+                            <div class="priority-color priority-color-${allTask[i].priority}"></div>
+                            <div class="ticket-id">#${allTask[i].ticketId}</div>
+                            <div class="task-container">${allTask[i].task}</div>
+                            </div>`);
+            $(".ticket-container").append(ticket);
+
+            ticket.click(function (e) {
+                if ($(e.currentTarget).hasClass("active")) {
+                    $(e.currentTarget).removeClass("active");
                 } else {
-                    e.currentTarget.classList.add("active");
+                    $(e.currentTarget).addClass("active");
+                    console.log(e.currentTarget);
                 }
             });
         }
     }
 }
 
-loadTTickets();
+loadTickets();
 
-for (let i = 0; i < allFilters.length; i++) {
-    allFilters[i].addEventListener("click", filterHandler);
-}
+$(".add").click(showModal);
+$(".delete").click(removeTicket);
+
+$(allFilters).each(function (index, item) {
+    $(item).bind("click", filterHandler);
+});
+
+// for (let i = 0; i < allFilters.length; i++) {
+//     allFilters[i].click(filterHandler);
+// }
 
 function filterHandler(e) {
-    TC.innerHTML = "";
-    if (e.currentTarget.classList.contains("active")) {
-        e.currentTarget.classList.remove("active");
-        loadTTickets();
+    //console.log(e.currentTarget);
+    $(".ticket-container").html("");
+    if ($(e.currentTarget).hasClass("active")) {
+        $(e.currentTarget).removeClass("active");
+        //console.log(e.currentTarget);
+        loadTickets();
     } else {
-        let activeFIlter = document.querySelector(".filter.active");
-        if (activeFIlter) {
-            activeFIlter.classList.remove("active");
+        let activeFilter = $(".filter.active");
+        if (activeFilter) {
+            //console.log(activeFilter);
+            activeFilter.removeClass("active");
         }
-        e.currentTarget.classList.add("active");
+
+        $(e.currentTarget).addClass("active");
+        //console.log(e);
         let ticketPriority = e.currentTarget.children[0].classList[0].split("-")[0];
-        loadTTickets(ticketPriority);
+        //console.log(ticketPriority);
+        loadTickets(ticketPriority);
     }
 }
-let addBtn = document.querySelector(".add");
-let deleteBtn = document.querySelector(".delete");
 
-deleteBtn.addEventListener("click", function (e) {
-    let selectedTickets = document.querySelectorAll(".ticket.active");
-    let allTasks = JSON.parse(localStorage.getItem("allTasks"));
-    for (let i = 0; i < selectedTickets.length; i++) {
-        selectedTickets[i].remove();
-        let ticketID = selectedTickets[i].querySelector(".ticket-id").innerText;
-        allTasks = allTasks.filter(function (data) {
+function showModal(e) {
+    if (!modalExists) {
+        modal = $(`<div class="modal-parent">
+            <div class="add-task">ADD TICKET</div>
+            <div class="input-modal" contenteditable="true">
+                <textarea class="textarea" datatyped="false" placeholder="Enter your task here"></textarea>
+            </div>
+            <div class="modal-confirmation">
+                <div class="save-btn btn btn-grad ">Save</div>
+                <div class="cancel-btn btn btn-grad ">Cancel</div>
+            </div>
+            <div class="priority-list">
+                <div class="modal-pink-filter modal-filter active"></div>
+                <div class="modal-blue-filter modal-filter"></div>
+                <div class="modal-green-filter modal-filter"></div>
+                <div class="modal-yellow-filter modal-filter"></div>
+            </div>
+        </div>`)
+        transModal = $(`<div class="transparent-modal"></div>`);
+
+        $(".ticket-container").append(modal);
+        $(".ticket-container").append(transModal);
+
+        selectedPriority = "pink";
+        modal.animate({
+            "width": "45vw"
+        }, 700);
+
+        setTimeout(() => {
+            transModal.animate({
+                "width": "65vw"
+            }, 300)
+        }, 650)
+        modalExists = true;
+
+        let modalfilters = $(".modal-filter");
+        $(modalfilters).each(function (index, item) {
+            $(item).bind("click", selectPriority);
+        });
+
+        $(".cancel-btn").click(modalClose);
+
+        $(".save-btn").click(addTicket);
+
+    }
+
+
+}
+
+function selectPriority(e) {
+    $(".modal-filter.active").removeClass("active");
+    $(e.target).addClass("active");
+    selectedPriority = e.target.classList[0].split("-")[1];
+
+}
+
+function addTicket(e) {
+    let id = uid();
+    let text = $(".textarea").val();
+    if (text == "") {
+        alert("Error! you have not type anything in task.")
+    }
+    else {
+        ticket = $(`<div class="ticket">
+                    <div class="priority-color priority-color-${selectedPriority}"></div>
+                    <div class="ticket-id">#${id}</div>
+                    <div class="task-container">${text}</div>
+                </div>`);
+        $(".ticket-container").append(ticket);
+
+        // ticket.click(function (e) {
+        //     //console.log(e.currentTarget);
+        //     if ($(e.currentTarget).hasClass("active")) {
+        //         $(e.currentTarget).removeClass("active");
+        //     } else {
+        //         $(e.currentTarget).addClass("active");;
+        //     }
+        // });
+        modalClose();
+
+        let allTask = localStorage.getItem("allTask");
+        if (allTask == null) {
+            let data = [{ "ticketId": id, "task": text, "priority": selectedPriority }];
+            localStorage.setItem("allTask", JSON.stringify(data));
+        } else {
+            let data = JSON.parse(allTask);
+            data.push({ "ticketId": id, "task": text, "priority": selectedPriority });
+            localStorage.setItem("allTask", JSON.stringify(data));
+        }
+        let activeFilter = $(".filter.active");
+        //console.log(activeFilter[0]);
+        $(".ticket-container").html("");
+        if (activeFilter[0]) {
+            let priority = selectedPriority;
+            loadTickets(priority);
+        } else {
+            loadTickets();
+        }
+    }
+}
+
+
+function modalClose(e) {
+    transModal.animate({
+        "width": "0vw"
+    }, 300)
+    setTimeout(() => {
+        modal.animate({
+            "width": "0vw"
+        }, 600)
+    }, 300)
+    setTimeout(() => {
+        modal.remove();
+        transModal.remove();
+    }, 800);
+
+    modalExists = false;
+}
+
+
+function removeTicket(e) {
+    let selectedTicket = $(".ticket.active");
+    let allTask = JSON.parse(localStorage.getItem("allTask"));
+    for (let i = 0; i < selectedTicket.length; i++) {
+        selectedTicket[i].remove();
+        console.log(selectedTicket);
+        let ticketID = selectedTicket[i].querySelector(".ticket-id").innerText;
+        allTask = allTask.filter(function (data) {
             return (("#" + data.ticketId) != ticketID);
         });
     }
-    localStorage.setItem("allTasks", JSON.stringify(allTasks));
-});
+    localStorage.setItem("allTask", JSON.stringify(allTask));
+}
 
-addBtn.addEventListener("click", showModal);
-
-let selectedPriority;
-
-function showModal(e) {
-    if (!modalVisible) {
-        // let modal = document.createElement("div");
-        // modal.classList.add("modal");
-        // modal.innerHTML = `<div class="task-to-be-added" data-typed="false" contenteditable="true"></div>
-        // <div class="modal-priority-list">
-        //     <div class="modal-pink-filter modal-filter"></div>
-        //     <div class="modal-blue-filter modal-filter"></div>
-        //     <div class="modal-green-filter  modal-filter"></div>
-        //     <div class="modal-yellow-filter  modal-filter"></div>
-        // </div>`;
-        // TC.appendChild(modal);
-
-        let modal = document.createElement("div");
-        modal.classList.add("modal");
-        modal.innerHTML = `<div class="task-to-be-added" data-typed="false" contenteditable="true">Enter your task here</div>
-            <div class="modal-priority-list">
-                <div class="modal-pink-filter modal-filter active"></div>
-                <div class="modal-blue-filter modal-filter"></div>
-                <div class="modal-green-filter  modal-filter"></div>
-                <div class="modal-yellow-filter  modal-filter"></div>
-            </div>`;
-        TC.appendChild(modal);
-        selectedPriority = "pink"; //by default
-        let taskModal = document.querySelector(".task-to-be-added");
-        taskModal.addEventListener("click", function (e) {
-            if (e.currentTarget.getAttribute("data-typed") == "false") {
-                e.currentTarget.innerText = "";
-                e.currentTarget.setAttribute("data-typed", "true");
-            }
-        })
-        modalVisible = true;
-        taskModal.addEventListener("keypress", addTicket.bind(this, taskModal));
-        let modalFilters = document.querySelectorAll(".modal-filter");
-        for (let i = 0; i < modalFilters.length; i++) {
-            modalFilters[i].addEventListener("click", selectPriority.bind(this, taskModal));
-        }
+$(".delete-all").click(function (e) {
+    let ticketDelete = $(".ticket");
+    for (let i = 0; i < ticketDelete.length; i++) {
+        $(ticketDelete[i]).addClass("active");
     }
 
-}
-
-
-function selectPriority(taskModal, e) {
-    let activeFIlter = document.querySelector(".modal-filter.active");
-    activeFIlter.classList.remove("active");
-    selectedPriority = e.currentTarget.classList[0].split("-")[1];
-    e.currentTarget.classList.add("active");
-    taskModal.click();
-    taskModal.focus();
-}
-
-
-function addTicket(taskModal, e) {
-    console.log(e);
-    if (e.key == "Enter" && e.shiftKey == false && taskModal.innerText.trim() != "") {
-        let task = taskModal.innerText;
-        let id = uid();
-        // let ticket = document.createElement("div");
-        // ticket.classList.add("ticket");
-        // ticket.innerHTML = `<div class="ticket-color ticket-color-${selectedPriority}"></div>
-        //                 <div class="ticket-id">#${id}</div>
-        //                 <div class="task">${task}</div>`;
-
-        document.querySelector(".modal").remove();
-        modalVisible = false;
-        // TC.appendChild(ticket);
-        // ticket.addEventListener("click", function(e) {
-        //     if(e.currentTarget.classList.contains("active")) {
-        //         e.currentTarget.classList.remove("active");
-        //     } else {
-        //         e.currentTarget.classList.add("active");
-        //     }
-        // });
-
-        let allTasks = localStorage.getItem("allTasks");
-
-        if (allTasks == null) {
-            let data = [{ "ticketId": id, "task": task, "priority": selectedPriority }];
-            localStorage.setItem("allTasks", JSON.stringify(data));
-        } else {
-            let data = JSON.parse(allTasks);
-            data.push({ "ticketId": id, "task": task, "priority": selectedPriority });
-            localStorage.setItem("allTasks", JSON.stringify(data));
-        }
-
-        let activeFilter = document.querySelector(".filter.active");
-        TC.innerHTML = "";
-        if (activeFilter) {
-            let priority = activeFilter.children[0].classList[0].split("-")[0];
-            loadTTickets(priority);
-        } else {
-            loadTTickets();
-        }
-    } else if (e.key == "Enter" && e.shiftKey == false) {
-        e.preventDefault();
-        alert("Error! you have not type anything in task.")
-    }
-}
+    removeTicket();
+})

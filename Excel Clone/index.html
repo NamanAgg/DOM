@@ -17,13 +17,13 @@
     <div class="container">
         <div class="title-bar">Book-1 Excel</div>
         <div class="menu-bar">
-            <div class="menu-bar-item" id="menu-file">File</div>
+            <div class="menu-bar-item" id="file-menu">File</div>
             <div class="menu-bar-item selected">Home</div>
             <div class="menu-bar-item">Insert</div>
             <div class="menu-bar-item">Page Layout</div>
             <div class="menu-bar-item">View</div>
         </div>
-        <div class="menu-icon-bar">
+        <div class="menu-bar-icon">
             <div class="material-icons menu-icon" id="cut">content_cut</div>
             <div class="material-icons menu-icon" id="copy">content_copy</div>
             <div class="material-icons menu-icon" id="paste">content_paste</div>
@@ -58,9 +58,9 @@
             <div class="material-icons menu-icon" id="bold">format_bold</div>
             <div class="material-icons menu-icon" id="italic">format_italic</div>
             <div class="material-icons menu-icon" id="underlined">format_underlined</div>
-            <div class="material-icons menu-icon color-pick" id="fill-color"><img id="fill-color-icon"
+            <div class="material-icons menu-icon color-pick" id="fill-color"><img id="color-fill-icon"
                     src="https://img.icons8.com/material-sharp/20/000000/fill-color.png" /></div>
-            <div class="material-icons menu-icon color-pick" id="text-color"><img id="text-color-icon"
+            <div class="material-icons menu-icon color-pick" id="text-color"><img id="text-fill-icon"
                     src="https://img.icons8.com/ios-filled/20/000000/generic-text-filled.png" /></div>
             <div class="material-icons menu-icon alignment selected" data-type="left">format_align_left</div>
             <div class="material-icons menu-icon alignment" data-type="center">format_align_center</div>
@@ -84,7 +84,7 @@
         </div>
         <div class="data-container">
             <div id="select-all"></div>
-            <div id="columns">
+            <div id="coloumns">
             </div>
             <div id="rows">
             </div>
@@ -96,7 +96,7 @@
                 <div class="material-icons scroller left-scroller">arrow_left</div>
                 <div class="material-icons scroller right-scroller">arrow_right</div>
             </div>
-            <div class="material-icons add-sheet">add_circle</div>
+            <div class="material-icons addSheet">add_circle</div>
             <div class="sheet-tab-container">
                 <div class="sheet-tab selected">Sheet1</div>
             </div>
@@ -112,8 +112,8 @@
                     <input class="sheet-modal-input" type="text" />
                 </div>
                 <div class="sheet-modal-confirmation">
-                    <div class="button ok-button">OK</div>
-                    <div class="button cancel-button">Cancel</div>
+                    <div class="btn ok-btn">OK</div>
+                    <div class="btn cancel-btn">Cancel</div>
                 </div>
             </div>
         </div> -->
@@ -126,19 +126,20 @@
                     <span class="sheet-modal-detail-title">Are you sure?</span>
                 </div>
                 <div class="sheet-modal-confirmation">
-                    <div class="button delete-button">
+                    <div class="btn delete-btn">
                         <div class="material-icons delete-icon">delete</div>
                         Delete
                     </div>
-                    <div class="button cancel-button">Cancel</div>
+                    <div class="btn cancel-btn">Cancel</div>
                 </div>
             </div>
         </div> -->
-        <!-- <div class="sheet-modal-parent">
+        <!-- <div class="sheet-modal-parent loader-parent">
+            <div class="loading-img"><img src="loader.gif"/></div>
             <div class="loading">Loading...</div>
         </div> -->
-        <!-- <div class="file-modal">
-            <div class="file-options-modal">
+        <!-- <div class="file-modal-parent">
+            <div class="options-modal">
                 <div class="close">
                     <div class="material-icons close-icon">arrow_circle_down</div>
                     <div>Close</div>
@@ -156,10 +157,8 @@
                     <div>Save</div>
                 </div>
             </div>
-            <div class="file-recent-modal">
-
-            </div>
-            <div class="file-transparent-modal"></div>
+            <div class="recent-files-modal"></div>
+            <div class="transparent-file-modal"></div>
         </div> -->
     </div>
     <script src="./Flat-HTML5-Palette-Color-Picker-For-jQuery-colorPick-js/src/colorPick.js"></script>

@@ -311,25 +311,25 @@ function updateCellData(property, value) {
             let [rowId, colId] = getIDs(data);
             if (cellData[selectedSheet][rowId - 1] == undefined) {
                 cellData[selectedSheet][rowId - 1] = {};
-                cellData[selectedSheet][rowId - 1][colId - 1] = { ...defaultProperties, "upStream": [], "downStream": [] };//copy bnake dalre hai else defaul m hi change ho jaega
+                cellData[selectedSheet][rowId - 1][colId - 1] = { ...defaultProperties, "upStream": [], "downStream": [] };// we are putting a copy else changes will occur in default
                 cellData[selectedSheet][rowId - 1][colId - 1][property] = value;
             } else {
                 if (cellData[selectedSheet][rowId - 1][colId - 1] == undefined) {
-                    cellData[selectedSheet][rowId - 1][colId - 1] = { ...defaultProperties, "upStream": [], "downStream": [] };//copy bnake dalre hai else defaul m hi change ho jaega
+                    cellData[selectedSheet][rowId - 1][colId - 1] = { ...defaultProperties, "upStream": [], "downStream": [] };//we are putting a copy else changes will occur in default
                     cellData[selectedSheet][rowId - 1][colId - 1][property] = value;
                 } else {
                     cellData[selectedSheet][rowId - 1][colId - 1][property] = value;
                 }
             }
         });
-    } else { //if firse default property p hi click kia h
+    } else { //if we clicked on default property
         $(".input-cell.selected").each(function (index, data) {
             let [rowId, colId] = getIDs(data);
-            if (cellData[selectedSheet][rowId - 1] && cellData[selectedSheet][rowId - 1][colId - 1]) { //but uska data exist krta h mtlb changes h
+            if (cellData[selectedSheet][rowId - 1] && cellData[selectedSheet][rowId - 1][colId - 1]) { //if data exist then it means there are changes
                 cellData[selectedSheet][rowId - 1][colId - 1][property] = value;
                 if (JSON.stringify(cellData[selectedSheet][rowId - 1][colId - 1]) == JSON.stringify(defaultProperties)) {
                     delete cellData[selectedSheet][rowId - 1][colId - 1];
-                    if (Object.keys(cellData[selectedSheet][rowId - 1]).length == 0) //agr cell ka data delte krne k baad row{} empty ho jae to delete it
+                    if (Object.keys(cellData[selectedSheet][rowId - 1]).length == 0) //if the row{} is empty after deleting cell data,then delete it
                         delete cellData[selectedSheet][rowId - 1];
                 }
             }
@@ -353,10 +353,6 @@ $(".color-pick").colorPick({
             if (this.element.attr("id") == "fill-color") {
                 $("#color-fill-icon").css("border-bottom", `3px solid ${this.color}`);
                 $(".input-cell.selected").css("background-color", this.color);
-                // $(".input-cell.selected").each((index,data) => {
-                //     let [rowId,colId] = getIDs(data);
-                //     cellData[selectedSheet][rowId-1][colId-1].bgcolor = this.color;
-                // });
                 updateCellData("bgcolor", this.color);
             } else {
                 $("#text-fill-icon").css("border-bottom", `3px solid ${this.color}`);
@@ -524,7 +520,7 @@ function addTabClickEvents() {
             })
         })
 
-        if (!$(this).hasClass("selected")) //agr aisi old sheet k tab p right click kia h jo selected ni thi to use sath sath select bhi krdo
+        if (!$(this).hasClass("selected"))
             selectSheet(this);
 
     })
@@ -538,7 +534,7 @@ function addTabClickEvents() {
 
 function renameSheet() {
     let newSheetName = $(".sheet-modal-input").val();
-    if (newSheetName && !Object.keys(cellData).includes(newSheetName)) { //agr already vo name ni exist krta
+    if (newSheetName && !Object.keys(cellData).includes(newSheetName)) { 
         let newCellData = {};
         for (let i of Object.keys(cellData)) {
             if (i == selectedSheet)
@@ -742,7 +738,7 @@ function openFile() {
             let sheets = Object.keys(cellData);
             for (let i of sheets)
                 $(".sheet-tab-container").append(`<div class="sheet-tab selected">${i}</div>`);
-            addTabClickEvents();//works on only selected sir
+            addTabClickEvents();
             $(".sheet-tab").removeClass("selected");
             $($(".sheet-tab")[0]).addClass("selected");
             selectedSheet = sheets[0];
@@ -765,7 +761,7 @@ $("#cut,#copy").click(function (e) {
     clipboard.startcell = getIDs($(".input-cell.selected")[0]);
     $(".input-cell.selected").each((index, data) => {
         let [rowId, colId] = getIDs(data);
-        if (cellData[selectedSheet][rowId - 1] && cellData[selectedSheet][rowId - 1][colId - 1]) //cell m data h
+        if (cellData[selectedSheet][rowId - 1] && cellData[selectedSheet][rowId - 1][colId - 1]) //there is data in cell
         {
             if (!clipboard.cellData[rowId])
                 clipboard.cellData[rowId] = {};
@@ -828,19 +824,19 @@ $("#function-input").blur(function () {
 });
 
 function updateStreams(ele, elements) {
-    let [rowId, colId] = getIDs(ele); //jis cell m formula lgana h uski ids
+    let [rowId, colId] = getIDs(ele); //id of the cell where we have to apply formula
     for (let i = 0; i < elements.length; i++) {
-        if (checkForSelf(rowId, colId, elements[i])) { //agr ye ele khud m h
+        if (checkForSelf(rowId, colId, elements[i])) { //if the element is in itself
             return false;
         }
     }
     //if upstream update krre h firse usi element ki to uska upstream phle se exist krta h or aise h to usme phle to cell th unka downstream bhi update krna pdega
     if (cellData[selectedSheet][rowId - 1] && cellData[selectedSheet][rowId - 1][colId - 1] && cellData[selectedSheet][rowId - 1][colId - 1].upStream.length > 0) {
         let upStream = cellData[selectedSheet][rowId - 1][colId - 1].upStream;
-        let selfCode = colIdtoName(colId) + rowId; //ele n apna name nikaala
+        let selfCode = colIdtoName(colId) + rowId; //acquired the name of the element
 
         for (let i of upStream) {
-            let [calRowId, calColId] = findIDsFromName(i);//ele k upstream k elements ki ids 
+            let [calRowId, calColId] = findIDsFromName(i);//elements ids present in  upstream of current element 
             let index = cellData[selectedSheet][calRowId - 1][calColId - 1].downStream.indexOf(selfCode);//un ids k downstream ka vo index jha upstream wala ele h
             cellData[selectedSheet][calRowId - 1][calColId - 1].downStream.splice(index, 1);//delete that ele 
             if (JSON.stringify(cellData[selectedSheet][calRowId - 1][calColId - 1]) == JSON.stringify(defaultProperties)) {
@@ -851,19 +847,19 @@ function updateStreams(ele, elements) {
         }
     }
 
-    if (!cellData[selectedSheet][rowId - 1]) { //row exist ni krti
+    if (!cellData[selectedSheet][rowId - 1]) { //row doesnt exist
         cellData[selectedSheet][rowId - 1] = {};
         cellData[selectedSheet][rowId - 1][colId - 1] = { ...defaultProperties, "upStream": [], "downStream": [] };
-    } else if (!cellData[selectedSheet][rowId - 1][colId - 1]) { //cell exist ni krta
+    } else if (!cellData[selectedSheet][rowId - 1][colId - 1]) { //cell doesnt exist
         cellData[selectedSheet][rowId - 1][colId - 1] = { ...defaultProperties, "upStream": [], "downStream": [] };
     }
-    cellData[selectedSheet][rowId - 1][colId - 1].upStream = []; //formula change hua h to purani del krdo
+    cellData[selectedSheet][rowId - 1][colId - 1].upStream = []; //delete the old formula as their is change in formula 
     let data = cellData[selectedSheet][rowId - 1][colId - 1];
     for (let i = 0; i < elements.length; i++) {
-        if (data.downStream.includes(elements[i])) { //agr jo upstream m daalna h downstream m h
+        if (data.downStream.includes(elements[i])) { //if element we want to put in upstream already exist in downstream
             return false;
         } else {
-            if (!data.upStream.includes(elements[i])) //agr phle se h to firse kyu kre
+            if (!data.upStream.includes(elements[i])) //if it already exist then no need to do it again
                 data.upStream.push(elements[i]);
         }
     }
